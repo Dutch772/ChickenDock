@@ -79,13 +79,13 @@ jobs:
     - name: Wait for API Readiness
       run: |
         echo "Waiting for ChickenAPI to wake up at http://localhost:8080..."
-        timeout 60s sh -c 'until curl -sSf http://localhost:8080/GetEggs > /dev/null; do sleep 2; done'
+        timeout 60s sh -c 'until curl -sSf http://localhost:8080/GetMeEggs > /dev/null; do sleep 2; done'
         echo "ChickenAPI is up and running!"
 
     - name: Integration Step 1 - Seed Data via API
       run: |
         echo "Posting a new chicken payload to the database..."
-        curl -X POST http://localhost:8080/api/Chicken \
+        curl -X POST http://localhost:8080/api/chicken \
         -H "Content-Type: application/json" \ 
         -d '{"name": "Cluck Norris", "age": 2, "breed": "Rhode Island Red"}' \
         --fail --verbose
