@@ -13,7 +13,6 @@ services:
       - "1400:1433"  # Secondary port to avoid local SQL conflicts
     volumes:
       - db_data:/var/opt/mssql
-      - ./logs:/var/opt/mssql/log
     restart: unless-stopped
     networks:
       - chick-network
@@ -26,6 +25,8 @@ services:
       SQL_CONNECTION_STRING: "Server=chick-db;Database=Farm;Trusted_Connection=false;MultipleActiveResultSets=true;Encrypt=false;user id=sa;password=Password1!"
     ports:
       - "80:8080"
+    depends_on:
+      - chick-db-service
     networks:
       - chick-network 
 
