@@ -20,6 +20,9 @@ namespace ChickenAPI
 
             var app = builder.Build();
 
+            // Attempt to initialize the database with retry logic
+            RetryDatabaseConnection(app.Services);
+
             // Configure the HTTP request pipeline.
             if (true)
             {
@@ -38,8 +41,39 @@ namespace ChickenAPI
 
 
             app.MapControllers();
-
+            
             app.Run();
+        }
+
+        private static void RetryDatabaseConnection(IServiceProvider services, int maxRetries = 10, int delayMs = 3000)
+        {
+            using (var scope = services.CreateScope())
+            {
+                var dbContext = scope.ServiceProvider.GetRequiredService<FarmDbContext>();
+                
+                for (int i = 0; i < maxRetries; i++)
+                {
+                    try
+                    {
+                        if (dbContext.Database.CanConnect())
+                        {
+                            Console.WriteLine("Database connection successful!");
+                            return;
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        Console.WriteLine($"Database connection attempt {i + 1}/{maxRetries} failed: {ex.Message}");
+                    }
+
+                    if (i < maxRetries - 1)
+                    {
+                        Thread.Sleep(delayMs);
+                    }
+                }
+
+                Console.WriteLine("Failed to connect to database after retries, but continuing startup...");
+            }
         }
     }
 }
